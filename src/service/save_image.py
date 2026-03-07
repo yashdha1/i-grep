@@ -10,9 +10,15 @@ def save_images(directory_path: str):
         with SessionLocal() as db:
             for image_path in os.listdir(directory_path):
                 full_path = os.path.join(directory_path, image_path)
+
+                image_already_exists = db.query(Image).filter(Image.image_loc == image_path).first()
+                if image_already_exists:
+                    continue 
+
                 text = extract_text_from_image(full_path)
                 image = Image(image_loc=image_path, words=text or "", embeddings="")
                 db.add(image) 
+                
             print(f"Saved {len(os.listdir(directory_path))} images")
             db.commit()
             print("Images saved successfully")
