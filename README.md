@@ -28,3 +28,9 @@
     # setup
     igrep setup                      : model installation and db setup  (hide all the ugly shit)
 ```
+
+
+tradeoffs 
+1. accuracy vs fast -> tessaract vs tess_fast.
+    1.1. tess_fast -> still preety good
+    

@@ -1,4 +1,4 @@
-from src.lib.db import SessionLocal
+from src.lib.db import SessionLocal, init_db
 from src.models.Image import Image
 from src.service.save_image import save_images
 from src.service.search_pattern import search_images_keyword
@@ -10,13 +10,13 @@ from src.lib.llm import search_embeddings
 def main(): 
     IMAGES_DIR = "./images"
     while True : 
-        
         print("  0. Update the database and embeddings.")
         print("  1. Keyword search.")
         print("  2. Semantic search.")
         choice = input(">> ").strip()
 
-        if choice == "0" : 
+        if choice == "0" :
+            init_db()  # Ensure database and tables exist
             print("Saving images... might take few seconds.")
             save_images(IMAGES_DIR)
             print("Images saved successfully.\n")

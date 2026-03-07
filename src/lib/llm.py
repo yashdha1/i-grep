@@ -40,6 +40,14 @@ def _get_model():
 def encode_text(text):
     return _get_model().encode(text)
 
+
+def encode_texts(texts, batch_size=64):
+    """Encode a list of texts in batches; much faster than encode_text() per item."""
+    if not texts:
+        return []
+    model = _get_model()
+    return model.encode(texts, batch_size=batch_size, show_progress_bar=False)
+
 def _embedding_from_db(value): 
     if value is None or value == b"" or value == "":
         return None
