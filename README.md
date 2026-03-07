@@ -9,22 +9,27 @@
 3. application setup and startup
 ```shell
     uv sync
-    uv run main.py
 ```
 
-```
+```shell
     # pattern search
-    igrep "pattern_search"           : normal 
-    igrep -i "pattern_search"        : ignore casing
-    igrep -c "pattern"               : count the occurences
+    igrep "pattern_search"     # normal search
+    igrep -i "pattern_search"  # ignore case (--ignore-case)
+    igrep -c "pattern"         # count occurrences (--count)
 
-    # semantics search :
-    igrep -s "text"                  : semantic search default top_5 
-    igrep -s "text" <topk>           : semantic search default top_k
+    # semantic search
+    igrep -s "text"            # semantic search, default top 5
+    igrep -s "text" 10         # semantic search with top-k (e.g. 10)
 
     # sync the images
-    igrep sync                       : sync the images present in the folder to have in the db
+    igrep sync                 # sync images in the folder to the db
 
     # setup
-    igrep setup                      : model installation and db setup  (hide all the ugly shit)
+    igrep setup                # model installation and db setup
 ```
+
+
+tradeoffs 
+1. accuracy vs fast -> tessaract vs tess_fast.
+    1.1. tess_fast -> still preety good
+    

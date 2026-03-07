@@ -12,3 +12,6 @@ dependencies = [
     "sentence-transformers>=5.2.3",
     "sqlalchemy>=2.0.48",
 ]
+
+[tool.uv]
+package = false

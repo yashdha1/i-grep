@@ -1,48 +1,38 @@
-from src.lib.db import SessionLocal
-from src.models.Image import Image
-from src.service.save_image import save_images
-from src.service.search_pattern import search_images_keyword
-from src.service.filters import filter_rows
-from src.service.console_output import print_search_results
-from src.lib.llm import search_embeddings
+import argparse
+import subprocess
 
 
-def main(): 
-    IMAGES_DIR = "./images"
-    while True : 
-        
-        print("  0. Update the database and embeddings.")
-        print("  1. Keyword search.")
-        print("  2. Semantic search.")
-        choice = input(">> ").strip()
+def main():
+    p = argparse.ArgumentParser(prog="igrep")
+    p.add_argument("query_or_cmd", nargs="?", help="Pattern/text or sync/setup")
+    p.add_argument("topk", nargs="?", type=int, help="Top-k for semantic search (-s)")
+    p.add_argument("-i", "--ignore-case", action="store_true", help="Ignore case")
+    p.add_argument("-c", "--count", action="store_true", help="Count occurrences")
+    p.add_argument("-s", "--semantic", action="store_true", help="Semantic search")
+    args = p.parse_args()
 
-        if choice == "0" : 
-            print("Saving images... might take few seconds.")
-            save_images(IMAGES_DIR)
-            print("Images saved successfully.\n")
-        
-        elif choice == "1":
-            query = input("Query: ").strip()
-            if not query:
-                print("No query provided.")
-                return
-            rows = search_images_keyword(query, 5)
-            filtered = filter_rows(rows, query)
-            print_search_results(filtered, images_dir=IMAGES_DIR)
-
-        elif choice == "2":
-            query = input("Query: ").strip()
-            if not query:
-                print("No query provided.")
-                return
-            with SessionLocal() as session:
-                db_rows = session.query(Image).all()
-            results = search_embeddings(query, db_rows, top_k=5)
-            print_search_results(None, results, images_dir=IMAGES_DIR)
-
-        else:
-            print("Invalid choice. Use 1 or 2.")
-            break
+    q = (args.query_or_cmd or "").strip()
+    if args.query_or_cmd == "sync":
+        from src.connector.sync import sync_data
+        sync_data()
+        return
+    if args.query_or_cmd == "setup":
+        print("Setting up the application.")
+        subprocess.run(["uv", "run", "setup.py"])
+        return
+    if args.semantic:
+        from src.connector.semantic import semantic_search
+        semantic_search(q, top_k=args.topk or 5)
+        return
+    if not q:
+        p.error("query_or_cmd required for search")
+    from src.connector.pattern import search_e, search_i, search_c
+    if args.count:
+        search_c(q)
+    elif args.ignore_case:
+        search_i(q)
+    else:
+        search_e(q)
 
 
 if __name__ == "__main__":
