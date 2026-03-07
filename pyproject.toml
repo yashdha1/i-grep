@@ -1,6 +1,3 @@
-[build-system]
-requires = ["hatchling", "sqlalchemy>=2.0.48"]
-
 [project]
 name = "igrep"
 version = "0.1.0"
@@ -16,5 +13,5 @@ dependencies = [
     "sqlalchemy>=2.0.48",
 ]
 
-[project.scripts]
-igrep = "main:main"
+[tool.uv]
+package = false
