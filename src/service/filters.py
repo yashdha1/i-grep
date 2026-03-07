@@ -11,7 +11,7 @@ class FilteredRow:
         return f"{self.location} | {self.context}"
 
 
-def filter_rows(rows, query) :
+def filter_rows(rows, query, *, ignore_case: bool = False):
     filtered_rows = []
     query_words = query.split()
     for row in rows:
@@ -24,8 +24,11 @@ def filter_rows(rows, query) :
             line_stripped = line.strip()
             if not line_stripped:
                 continue
-            for word in query_words:
-                if word in line_stripped:
+            line_compare = line_stripped.lower() if ignore_case else line_stripped
+            words_compare = [w.lower() for w in query_words] if ignore_case else query_words
+            for i, word in enumerate(query_words):
+                check = words_compare[i] in line_compare
+                if check:
                     matching_line = line_stripped
                     break
             if matching_line is not None:

@@ -4,6 +4,6 @@ def timer(func) :
         start = time.time()
         result = func(*args, **kwargs)
         end = time.time()
-        print(f"Time taken: {end - start} seconds")
+        print(f"Time taken for operation : {end - start} seconds")
         return result
     return dec

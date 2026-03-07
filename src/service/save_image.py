@@ -15,7 +15,6 @@ EMBED_BATCH_SIZE = 64
 
 def _process_one_ocr(args):
     """Worker: (full_path, directory_path) -> (rel_path, text) or None. OCR only, no embedding."""
-    os.environ["OMP_THREAD_LIMIT"] = "1"
     full_path, directory_path = args
     try:
         rel_path = os.path.relpath(full_path, directory_path)
@@ -33,7 +32,6 @@ def _progress_bar(done, total, width=30):
     return f"[{bar}] {done}/{total}"
 
 
-@timer
 def save_images(directory_path: str): 
     try:
         # 1. collect all the images

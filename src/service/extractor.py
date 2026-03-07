@@ -7,6 +7,7 @@ from PIL import Image
 OCR_CONFIG = r'--oem 1 --psm 6'
 os.environ["TESSDATA_PREFIX"] = "/home/user/tesseract/tessdata_fast"
 MAX_IMAGE_DIM = 2000
+os.environ["OMP_THREAD_LIMIT"] = "1"
 
 
 def extract_text_from_image(image_path):
