@@ -1,4 +1,7 @@
-import os 
+import os
+
+from src.lib.get_paths import get_paths
+
 
 def formating(score: float, row, images_dir: str | None = None) -> str:
     loc = getattr(row, "image_loc", str(row))
@@ -9,8 +12,11 @@ def formating(score: float, row, images_dir: str | None = None) -> str:
         out += f"  {uri}"
     return out
 
-def print_search_results(filtered, res=None, images_dir: str | None = None):
+
+def print_search_results(filtered, res=None):
     """Print search results to console. results_with_scores: list of (score, row) for semantic, else None."""
+    paths = get_paths()
+    images_dir = paths[0] if paths else None
     if res is not None:
         print(f"Found {len(res)} image(s).")
         for i, (score, row) in enumerate(res, 1):
