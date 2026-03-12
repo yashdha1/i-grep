@@ -1,3 +1,9 @@
+# Igrep 
+## Provides pattern and semantic search functionality in a single Place. 
+> light weight
+>     ~100mb tess_fast model
+>     ~90mb mini model
+
 
 1. make sure you have the tessaract installed. locally. 
 2. check with 
@@ -29,7 +35,12 @@
 ```
 
 
-tradeoffs 
+##### tradeoffs 
 1. accuracy vs fast -> tessaract vs tess_fast.
-    1.1. tess_fast -> still preety good
-    
+2. tested it for ~2.5k images takes ~5-7mins
+3. instant search results.
+4. Manual testing accuracy shows promising results.
+
+TODO : 
+1. bundelling
+2. optimisations
