@@ -1,16 +1,14 @@
+# i-grep : cli based grep tool for images
 
-1. make sure you have the tessaract installed. locally. 
-2. check with 
+NOTE : supports only shell and wsl right now.
 
+1. setup command
 ```shell
-    tessaract --version
-``` 
-
-3. application setup and startup
-```shell
-    uv sync
+    chmod +x setup_igrep.sh
+    ./setup_igrep.sh
 ```
 
+2. commands intro using : *if bundle succesful*
 ```shell
     # pattern search
     igrep "pattern_search"     # normal search
@@ -28,8 +26,16 @@
     igrep setup                # model installation and db setup
 ```
 
+3. else look into 
 
-tradeoffs 
-1. accuracy vs fast -> tessaract vs tess_fast.
-    1.1. tess_fast -> still preety good
-    
+```shell
+    uv run main.py --help
+```
+
+
+
+TODO : 
+1. igrep command shall work and added to the path.
+2. optimisation -> lazy-loading in imports and sync speed up working and accuracy increase. 
+3. butify the output and better res. 
+4. uv tools
