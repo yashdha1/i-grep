@@ -1,4 +1,9 @@
-# i-grep : cli based grep tool for images
+# Igrep 
+## Provides pattern and semantic search functionality in a single Place. 
+> light weight
+>     ~100mb tess_fast model
+>     ~90mb mini model
+
 
 NOTE : supports only shell and wsl right now.
 
@@ -34,8 +39,12 @@ NOTE : supports only shell and wsl right now.
 
 
 
+##### tradeoffs 
+1. accuracy vs fast -> tessaract vs tess_fast.
+2. tested it for ~2.5k images takes ~5-7mins
+3. instant search results.
+4. Manual testing accuracy shows promising results.
+
 TODO : 
-1. igrep command shall work and added to the path.
-2. optimisation -> lazy-loading in imports and sync speed up working and accuracy increase. 
-3. butify the output and better res. 
-4. uv tools
+1. bundelling
+2. optimisations
