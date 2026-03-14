@@ -5,18 +5,15 @@
 >     ~90mb mini model
 
 
-1. make sure you have the tessaract installed. locally. 
-2. check with 
+NOTE : supports only shell and wsl right now.
 
+1. setup command
 ```shell
-    tessaract --version
-``` 
-
-3. application setup and startup
-```shell
-    uv sync
+    chmod +x setup_igrep.sh
+    ./setup_igrep.sh
 ```
 
+2. commands intro using : *if bundle succesful*
 ```shell
     # pattern search
     igrep "pattern_search"     # normal search
@@ -33,6 +30,13 @@
     # setup
     igrep setup                # model installation and db setup
 ```
+
+3. else look into 
+
+```shell
+    uv run main.py --help
+```
+
 
 
 ##### tradeoffs 

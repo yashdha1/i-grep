@@ -25,7 +25,7 @@ FTS_TABLE = "images_fts"
 
 
 def backfill_fts_from_images(since_id=None):
-    """Insert into FTS table for image rows with id > since_id (for use after bulk insert)."""
+    """Insert into FTS table for image rows"""
     eng = engine
     with eng.connect() as conn:
         if since_id is None:
