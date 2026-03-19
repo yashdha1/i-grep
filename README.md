@@ -4,9 +4,6 @@
 >     ~100mb tess_fast model
 >     ~90mb mini model
 
-
-NOTE : supports only shell and wsl right now.
-
 1. setup command
 ```shell
     chmod +x setup_igrep.sh
