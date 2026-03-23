@@ -1,5 +1,5 @@
 # Igrep 
-## Provides pattern and semantic search functionality in a single Place. 
+## Provides pattern and semantic search functionality in a single Place of pdf and images. 
 > light weight
 >     ~100mb tess_fast model
 >     ~90mb mini model
@@ -45,3 +45,4 @@
 TODO : 
 1. bundelling
 2. optimisations
+3. segregations and more commands integrations
