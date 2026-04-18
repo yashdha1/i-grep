@@ -3,19 +3,67 @@
 
 $ErrorActionPreference = "Stop"
 
+$defaultRepoUrl = "https://github.com/YashDhadod/igrep.git"
+$repoUrl = if ($env:IGREP_REPO_URL) { $env:IGREP_REPO_URL } else { $defaultRepoUrl }
+
+function Resolve-InstallDir() {
+    if ($PSScriptRoot) {
+        $candidate = (Get-Item "$PSScriptRoot\..").FullName
+        if (Test-Path (Join-Path $candidate "pyproject.toml")) {
+            return $candidate
+        }
+    }
+
+    $targetDir = Join-Path $env:USERPROFILE "igrep"
+
+    if (Test-Path (Join-Path $targetDir "pyproject.toml")) {
+        Write-Host "[*] Using existing checkout at: $targetDir" -ForegroundColor Cyan
+        return $targetDir
+    }
+
+    if (-not (Test-Command "git")) {
+        throw "git is required for remote install mode. Install git or run installer from a local checkout."
+    }
+
+    Write-Host "[*] Local repo not detected. Cloning igrep to: $targetDir" -ForegroundColor Yellow
+    if (Test-Path $targetDir) {
+        Remove-Item -Recurse -Force $targetDir
+    }
+
+    git clone $repoUrl $targetDir
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $targetDir "pyproject.toml"))) {
+        throw "Failed to clone igrep from $repoUrl"
+    }
+
+    return $targetDir
+}
+
+function Test-Command([string]$name) {
+    return [bool](Get-Command $name -ErrorAction SilentlyContinue)
+}
+
+function Refresh-SessionPath() {
+    $machinePath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+    $userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    $env:PATH = @($machinePath, $userPath) -join ";"
+}
+
 function Add-ToUserPath([string]$dir) {
     $regPath = "HKCU:\Environment"
-    $current = (Get-ItemProperty -Path $regPath -Name PATH -ErrorAction SilentlyContinue).PATH
-    if ($current -notlike "*$dir*") {
-        $new = if ($current) { "$current;$dir" } else { $dir }
-        Set-ItemProperty -Path $regPath -Name PATH -Value $new
+    $currentPath = (Get-ItemProperty -Path $regPath -Name PATH -ErrorAction SilentlyContinue).PATH
+    if ($currentPath -notlike "*$dir*") {
+        $newPath = if ($currentPath) { "$currentPath;$dir" } else { $dir }
+        Set-ItemProperty -Path $regPath -Name PATH -Value $newPath
         Write-Host "[✓] Added to PATH: $dir" -ForegroundColor Green
     } else {
+        $newPath = $currentPath
         Write-Host "[✓] Already in PATH: $dir" -ForegroundColor Green
     }
-    # Broadcast change so open Explorer windows pick it up
-    $env:PATH += ";$dir"
-    [System.Environment]::SetEnvironmentVariable("PATH", $new, "User")
+
+    [System.Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
+    if ($env:PATH -notlike "*$dir*") {
+        $env:PATH += ";$dir"
+    }
 }
 
 function Set-UserEnv([string]$name, [string]$value) {
@@ -38,23 +86,39 @@ if (-not $isAdmin) {
     Write-Host ""
 }
 
-# Get installation directory (project root = parent of scripts/)
-$installDir = (Get-Item "$PSScriptRoot\..").FullName
+# Get installation directory. Supports local checkout and remote (irm | iex) bootstrap.
+$installDir = Resolve-InstallDir
 Write-Host "[*] Installation directory: $installDir" -ForegroundColor Cyan
 Write-Host ""
 
 # ── Step 1: uv ──────────────────────────────────────────────────────────────
 Write-Host "--- Step 1/4: Python package manager (uv) ---" -ForegroundColor Yellow
-if (Get-Command uv -ErrorAction SilentlyContinue) {
+if (Test-Command "uv") {
     Write-Host "[✓] uv already installed" -ForegroundColor Green
 } else {
     Write-Host "[*] Installing uv..." -ForegroundColor Yellow
     try {
         $ProgressPreference = 'SilentlyContinue'
         irm https://astral.sh/uv/install.ps1 | iex
+        Refresh-SessionPath
+
+        if (-not (Test-Command "uv")) {
+            $uvCandidateDirs = @(
+                "$env:USERPROFILE\.local\bin",
+                "$env:USERPROFILE\.cargo\bin"
+            )
+            foreach ($candidateDir in $uvCandidateDirs) {
+                if ((Test-Path $candidateDir) -and ($env:PATH -notlike "*$candidateDir*")) {
+                    $env:PATH += ";$candidateDir"
+                }
+            }
+        }
+
+        if (-not (Test-Command "uv")) {
+            throw "uv was installed but is not available in this session"
+        }
+
         Write-Host "[✓] uv installed" -ForegroundColor Green
-        # Make uv available in current session
-        $env:PATH += ";$env:USERPROFILE\.local\bin"
     } catch {
         Write-Host "[!] Failed to install uv. Install from https://github.com/astral-sh/uv" -ForegroundColor Red
         Read-Host "Press Enter to exit"; exit 1
@@ -70,7 +134,7 @@ $tessData = "$tessDir\tessdata"
 
 if (Test-Path $tessExe) {
     Write-Host "[✓] Tesseract already installed at: $tessDir" -ForegroundColor Green
-} elseif (Get-Command tesseract -ErrorAction SilentlyContinue) {
+} elseif (Test-Command "tesseract") {
     Write-Host "[✓] Tesseract already on PATH" -ForegroundColor Green
     $tessDir  = Split-Path (Get-Command tesseract).Source
     $tessData = "$tessDir\tessdata"
@@ -83,6 +147,14 @@ if (Test-Path $tessExe) {
         Write-Host "[*] Continuing..." -ForegroundColor Yellow
     } else {
         Write-Host "[✓] Tesseract installed" -ForegroundColor Green
+        Refresh-SessionPath
+        if (Test-Path $tessExe) {
+            $tessDir = "C:\Program Files\Tesseract-OCR"
+            $tessData = "$tessDir\tessdata"
+        } elseif (Test-Command "tesseract") {
+            $tessDir = Split-Path (Get-Command tesseract).Source
+            $tessData = "$tessDir\tessdata"
+        }
     }
 }
 
@@ -98,7 +170,7 @@ Write-Host ""
 # ── Step 3: Python dependencies ──────────────────────────────────────────────
 Write-Host "--- Step 3/4: Python dependencies ---" -ForegroundColor Yellow
 Push-Location $installDir
-uv pip install -e .
+uv sync
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[!] Failed to install igrep" -ForegroundColor Red
     Pop-Location; Read-Host "Press Enter to exit"; exit 1
@@ -110,10 +182,26 @@ Write-Host ""
 # ── Step 4: igrep command & DB setup ─────────────────────────────────────────
 Write-Host "--- Step 4/4: igrep command & database setup ---" -ForegroundColor Yellow
 
+$wrapperPath = Join-Path $installDir "igrep.bat"
+$wrapperContent = @(
+    "@echo off",
+    "set SCRIPT_DIR=%~dp0",
+    "cd /d \"%SCRIPT_DIR%\"",
+    "call uv run python main.py %*"
+)
+Set-Content -Path $wrapperPath -Value $wrapperContent -Encoding ASCII
+Write-Host "[✓] Created command wrapper: $wrapperPath" -ForegroundColor Green
+Add-ToUserPath $installDir
+
 Write-Host "[*] Running igrep setup (downloads ~90 MB ONNX model)..." -ForegroundColor Yellow
 Push-Location $installDir
 uv run igrep setup
+$setupExitCode = $LASTEXITCODE
 Pop-Location
+if ($setupExitCode -ne 0) {
+    Write-Host "[!] Setup failed. Retry with: uv run igrep setup" -ForegroundColor Red
+    Read-Host "Press Enter to exit"; exit 1
+}
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 Write-Host ""

@@ -10,7 +10,64 @@ set -e
 # Resolve project root (parent of the scripts/ directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+DEFAULT_REPO_URL="https://github.com/YashDhadod/igrep.git"
+REPO_URL="${IGREP_REPO_URL:-$DEFAULT_REPO_URL}"
+INSTALL_ROOT="${IGREP_INSTALL_DIR:-$HOME/igrep}"
+
+bootstrap_repo_if_needed() {
+    if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
+        return 0
+    fi
+
+    info "Local repo not detected. Bootstrapping into: $INSTALL_ROOT"
+
+    if ! command -v git &>/dev/null; then
+        error "git is required for remote install mode. Install git or run this script from a local checkout."
+    fi
+
+    rm -rf "$INSTALL_ROOT"
+    git clone "$REPO_URL" "$INSTALL_ROOT"
+
+    if [[ ! -f "$INSTALL_ROOT/pyproject.toml" ]]; then
+        error "Failed to clone igrep from $REPO_URL"
+    fi
+
+    PROJECT_ROOT="$INSTALL_ROOT"
+}
+
+ensure_global_igrep_command() {
+    step "Creating global igrep command"
+
+    local wrapper_dir="$HOME/.local/bin"
+    local wrapper_path="$wrapper_dir/igrep"
+    mkdir -p "$wrapper_dir"
+
+    cat > "$wrapper_path" <<EOF
+#!/usr/bin/env bash
 cd "$PROJECT_ROOT"
+exec uv run python main.py "\$@"
+EOF
+
+    chmod +x "$wrapper_path"
+    success "Created command wrapper: $wrapper_path"
+
+    if [[ ":$PATH:" != *":$wrapper_dir:"* ]]; then
+        local shell_rc
+        case "$SHELL" in
+            */zsh)  shell_rc="$HOME/.zshrc" ;;
+            */bash) shell_rc="$HOME/.bashrc" ;;
+            *)      shell_rc="$HOME/.profile" ;;
+        esac
+        if ! grep -qF "$wrapper_dir" "$shell_rc" 2>/dev/null; then
+            echo "" >> "$shell_rc"
+            echo "# Added by i-grep setup" >> "$shell_rc"
+            echo "export PATH=\"$wrapper_dir:\$PATH\"" >> "$shell_rc"
+            success "Added $wrapper_dir to PATH in $shell_rc"
+        fi
+        export PATH="$wrapper_dir:$PATH"
+    fi
+}
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -177,14 +234,14 @@ install_igrep() {
         error "pyproject.toml not found. Ensure you are running from the i-grep repo root."
     fi
 
-    uv pip install -e .
+    uv sync
     success "igrep installed"
 }
 
 # ── 5. Run igrep setup (model + db) ──────────────────────────────────────────
 run_igrep_setup() {
     step "Running igrep setup (ONNX model ~90 MB + database)"
-    igrep setup
+    uv run igrep setup
     success "igrep setup complete"
 }
 
@@ -223,10 +280,14 @@ main() {
     echo -e "  i-grep setup script${RESET}"
     echo ""
 
+    bootstrap_repo_if_needed
+    cd "$PROJECT_ROOT"
+
     install_tesseract
     install_tessdata_fast
     install_uv
     install_igrep
+    ensure_global_igrep_command
     run_igrep_setup
     print_summary
 }
