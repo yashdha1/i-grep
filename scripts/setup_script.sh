@@ -7,6 +7,11 @@
 
 set -e
 
+# Resolve project root (parent of the scripts/ directory)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 # ── Colors ────────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -169,7 +174,7 @@ sync_deps() {
     step "Syncing Python dependencies with uv"
 
     if [[ ! -f pyproject.toml ]]; then
-        error "pyproject.toml not found. Run this script from the root of the i-grep repo."
+        error "pyproject.toml not found. Ensure you are running from the i-grep repo root."
     fi
 
     uv sync
@@ -179,7 +184,7 @@ sync_deps() {
 # ── 5. Run igrep setup (model + db) ──────────────────────────────────────────
 run_igrep_setup() {
     step "Running igrep setup (embedding model + database)"
-    uv run igrep setup
+    uv run main.py setup
     success "igrep setup complete"
 }
 
