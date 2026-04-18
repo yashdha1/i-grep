@@ -4,14 +4,31 @@ import subprocess
 
 def main():
     p = argparse.ArgumentParser(prog="igrep")
-    p.add_argument("query_or_cmd", nargs="?", help="Pattern/text or sync/setup")
+    p.add_argument("query_or_cmd", nargs="?", help="Pattern/text or sync/setup/track")
     p.add_argument("topk", nargs="?", type=int, help="Top-k for semantic search (-s)")
     p.add_argument("-i", "--ignore-case", action="store_true", help="Ignore case")
     p.add_argument("-c", "--count", action="store_true", help="Count occurrences")
     p.add_argument("-s", "--semantic", action="store_true", help="Semantic search")
+    p.add_argument("--track", action="store_true", help="Manage tracked folders")
     args = p.parse_args()
 
     q = (args.query_or_cmd or "").strip()
+    
+    # Handle --track command
+    if args.track:
+        from src.lib.path_manager import add_path, list_paths
+        if q:
+            add_path(q)
+        else:
+            paths = list_paths()
+            if not paths:
+                print("No tracked folders yet. Use: igrep --track \"C:\\path\\to\\folder\"")
+            else:
+                print("Tracked folders:")
+                for i, path in enumerate(paths, 1):
+                    print(f"  {i}. {path}")
+        return
+    
     if args.query_or_cmd == "sync":
         from src.connector.sync import sync_data
         sync_data()

@@ -5,12 +5,14 @@ build/
 dist/
 wheels/
 *.egg-info
+.codemie
+CLAUDE.md 
 
 # Virtual environments
-.venv
-research.md
+.venv 
 .cursor
 /images
 /data
 /models
 /tess_fast
+/docs

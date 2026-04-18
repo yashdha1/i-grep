@@ -1,4 +1,5 @@
 import os
+import platform
 import pytesseract
 from PIL import Image
 import fitz
@@ -6,7 +7,20 @@ import fitz
 # For faster OCR, use tessdata_fast and TESSDATA_PREFIX  
 # OCR_CONFIG = "--psm 6 -c tessedit_do_invert=0"
 OCR_CONFIG = r'--oem 1 --psm 6'
-os.environ["TESSDATA_PREFIX"] = "/home/user/tesseract/tessdata_fast"
+
+# Only set TESSDATA_PREFIX on Linux if not already configured by the user/environment.
+# On Windows, the Tesseract installer sets it automatically.
+if not os.environ.get("TESSDATA_PREFIX") and platform.system() != "Windows":
+    for _candidate in [
+        "/usr/share/tesseract-ocr/5/tessdata",
+        "/usr/share/tesseract-ocr/4.00/tessdata",
+        "/usr/share/tessdata",
+        "/usr/local/share/tessdata",
+    ]:
+        if os.path.isdir(_candidate):
+            os.environ["TESSDATA_PREFIX"] = _candidate
+            break
+
 MAX_IMAGE_DIM = 2000
 os.environ["OMP_THREAD_LIMIT"] = "1"
 

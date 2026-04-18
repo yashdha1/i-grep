@@ -1,9 +1,25 @@
 [project]
 name = "igrep"
 version = "0.1.0"
-description = "Add your description here"
+description = "i-grep for pattern and semantic seach."
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [
+    {name = "Yash Dhadod", email = "yashdhadod@gmail.com"}
+]
+license = {text = "MIT"}
+keywords = ["search", "ocr", "image", "pdf", "semantic-search", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Utilities",
+]
 dependencies = [
     "argparse>=1.4.0",
     "numpy>=2.4.2",
@@ -14,6 +30,19 @@ dependencies = [
     "sqlalchemy>=2.0.48",
     "torch>=2.5.0,<2.10.0",
 ]
+[project.scripts]
+igrep = "main:main"
+
+[tool.setuptools]
+py-modules = ["main"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.uv]
 package = false
