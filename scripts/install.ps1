@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$defaultRepoUrl = "https://github.com/YashDhadod/igrep.git"
+$defaultRepoUrl = "https://github.com/yashdha1/i-grep.git"
 $repoUrl = if ($env:IGREP_REPO_URL) { $env:IGREP_REPO_URL } else { $defaultRepoUrl }
 
 function Resolve-InstallDir() {
@@ -72,11 +72,26 @@ function Set-UserEnv([string]$name, [string]$value) {
     Write-Host "[✓] $name = $value" -ForegroundColor Green
 }
 
+# Optional: define colors
+$color = "Cyan"
 Write-Host ""
-Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  igrep - Image/PDF Search Tool" -ForegroundColor Cyan
-Write-Host "  Windows Installation" -ForegroundColor Cyan
-Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host "==========================================" -ForegroundColor $color
+Write-Host "  ██╗ ██████╗ ██████╗ ███████╗██████╗ " -ForegroundColor $color
+Write-Host "  ██║██╔════╝ ██╔══██╗██╔════╝██╔══██╗" -ForegroundColor $color
+Write-Host "  ██║██║  ███╗██████╔╝█████╗  ██████╔╝" -ForegroundColor $color
+Write-Host "  ██║██║   ██║██╔══██╗██╔══╝  ██╔═══╝ " -ForegroundColor $color
+Write-Host "  ██║╚██████╔╝██║  ██║███████╗██║     " -ForegroundColor $color
+Write-Host "  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝     " -ForegroundColor $color
+Write-Host ""
+Write-Host "==========================================" -ForegroundColor $color
+Write-Host "        Windows Installation" -ForegroundColor $color
+Write-Host "==========================================" -ForegroundColor $color
+Write-Host ""
+
+Write-Host "==========================================" -ForegroundColor $color
+Write-Host "  i-grep - Image/PDF Search Tool" -ForegroundColor $color
+Write-Host "  Windows Installation" -ForegroundColor $color
+Write-Host "==========================================" -ForegroundColor $color
 Write-Host ""
 
 $isAdmin = ([Security.Principal.WindowsIdentity]::GetCurrent().Groups -contains "S-1-5-32-544")
