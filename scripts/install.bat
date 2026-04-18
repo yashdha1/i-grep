@@ -25,6 +25,7 @@ if %ERRORLEVEL% NEQ 0 (
         pause
         exit /b 1
     )
+    set PATH=%PATH%;%USERPROFILE%\.local\bin;%USERPROFILE%\.cargo\bin
     echo [OK] uv installed
 ) else (
     echo [OK] uv already installed
@@ -43,6 +44,9 @@ if exist "%TESS_EXE%" (
     where tesseract >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
         echo [OK] Tesseract already on PATH
+        for %%I in (tesseract.exe) do set TESS_DIR=%%~dp$PATH:I
+        set TESS_DIR=%TESS_DIR:~0,-1%
+        set TESS_DATA=%TESS_DIR%\tessdata
     ) else (
         echo [*] Installing Tesseract via winget...
         winget install --id UB-Mannheim.TesseractOCR --accept-source-agreements --accept-package-agreements --silent
@@ -61,7 +65,7 @@ if exist "%TESS_DATA%" (
     setx TESSDATA_PREFIX "%TESS_DATA%" >nul
     set TESSDATA_PREFIX=%TESS_DATA%
     echo [OK] TESSDATA_PREFIX set to: %TESS_DATA%
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "[System.Environment]::SetEnvironmentVariable('PATH', [System.Environment]::GetEnvironmentVariable('PATH','User') + ';%TESS_DIR%', 'User')"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=[System.Environment]::GetEnvironmentVariable('PATH','User'); if(-not $p){$p=''}; if($p -notlike '*%TESS_DIR%*'){[System.Environment]::SetEnvironmentVariable('PATH', ($p.TrimEnd(';') + ';%TESS_DIR%').Trim(';'), 'User')}"
     echo [OK] Tesseract added to PATH
 ) else (
     echo [!] tessdata folder not found - set TESSDATA_PREFIX manually after installing Tesseract
@@ -90,13 +94,14 @@ echo [*] Creating igrep wrapper...
 set WRAPPER_PATH=%INSTALL_DIR%\igrep.bat
 (
     echo @echo off
-    echo cd /d "%INSTALL_DIR%"
+    echo set SCRIPT_DIR=%%~dp0
+    echo cd /d "%%SCRIPT_DIR%%"
     echo call uv run python main.py %%*
 ) > "%WRAPPER_PATH%"
 echo [OK] Wrapper created: %WRAPPER_PATH%
 
 echo [*] Adding igrep to user PATH...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "[System.Environment]::SetEnvironmentVariable('PATH', [System.Environment]::GetEnvironmentVariable('PATH','User') + ';%INSTALL_DIR%', 'User')"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=[System.Environment]::GetEnvironmentVariable('PATH','User'); if(-not $p){$p=''}; if($p -notlike '*%INSTALL_DIR%*'){[System.Environment]::SetEnvironmentVariable('PATH', ($p.TrimEnd(';') + ';%INSTALL_DIR%').Trim(';'), 'User')}"
 echo [OK] Added to PATH
 
 echo [*] Running igrep setup (downloads ~90-100 MB embedding model)...
@@ -105,7 +110,9 @@ call uv run python main.py setup
 set SETUP_EXIT=%ERRORLEVEL%
 popd
 if %SETUP_EXIT% NEQ 0 (
-    echo [!] Setup step failed - you can retry with: igrep setup
+    echo [!] Setup step failed - you can retry with: uv run igrep setup
+    pause
+    exit /b 1
 )
 
 echo.

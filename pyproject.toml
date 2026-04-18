@@ -21,20 +21,17 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "argparse>=1.4.0",
-    "numpy>=2.4.2",
-    "pillow>=12.1.1",
-    "pymupdf>=1.27.2.2",
+    "numpy>=2.0",
+    "onnxruntime>=1.18",
+    "pillow>=10.0",
+    "platformdirs>=4.0",
+    "pymupdf>=1.24",
     "pytesseract>=0.3.13",
-    "sentence-transformers>=5.2.3",
-    "sqlalchemy>=2.0.48",
-    "torch>=2.5.0,<2.10.0",
+    "sqlalchemy>=2.0",
+    "tokenizers>=0.19",
 ]
 [project.scripts]
-igrep = "main:main"
-
-[tool.setuptools]
-py-modules = ["main"]
+igrep = "src.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -43,6 +40,3 @@ include = ["src*"]
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
-
-[tool.uv]
-package = false

@@ -1,13 +1,12 @@
-from pathlib import Path
-
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+from src.lib.dirs import data_dir
+
 Base = declarative_base()
 
-# Ensure data directory exists (SQLite won't create parent dirs)
-_db_path = Path(__file__).resolve().parent.parent.parent / "data" / "database.db"
-_db_path.parent.mkdir(parents=True, exist_ok=True)
+# data_dir() creates the directory automatically
+_db_path = data_dir() / "database.db"
 _db_url = f"sqlite:///{_db_path.as_posix()}"
 
 engine = create_engine(

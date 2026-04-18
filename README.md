@@ -1,48 +1,45 @@
-# Igrep 
-## Provides pattern and semantic search functionality in a single Place of pdf and images. 
-> light weight
->     ~100mb tess_fast model
->     ~90mb mini model
+# igrep
 
-1. setup command
-```shell
-    chmod +x setup_igrep.sh
-    ./setup_igrep.sh
+Pattern and semantic search for image and PDF collections.
+
+## One-command install (Windows)
+
+From the repository root, run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-2. commands intro using : *if bundle succesful*
-```shell
-    # pattern search
-    igrep "pattern_search"     # normal search
-    igrep -i "pattern_search"  # ignore case (--ignore-case)
-    igrep -c "pattern"         # count occurrences (--count)
+After install, open a new terminal and use `igrep` directly.
 
-    # semantic search
-    igrep -s "text"            # semantic search, default top 5
-    igrep -s "text" 10         # semantic search with top-k (e.g. 10)
+## Linux setup
 
-    # sync the images
-    igrep sync                 # sync images in the folder to the db
-
-    # setup
-    igrep setup                # model installation and db setup
+```bash
+chmod +x ./scripts/setup_script.sh
+./scripts/setup_script.sh
 ```
 
-3. else look into 
+## Quick usage
 
-```shell
-    uv run main.py --help
+```bash
+# Track a folder
+igrep --track "C:\path\to\images"
+
+# Index tracked folders
+igrep sync
+
+# Pattern search
+igrep "invoice"
+igrep -i "invoice"
+igrep -c "invoice"
+
+# Semantic search
+igrep -s "financial report summary"
+igrep -s "financial report summary" 10
 ```
 
+## CLI help
 
-
-##### tradeoffs 
-1. accuracy vs fast -> tessaract vs tess_fast.
-2. tested it for ~2.5k images takes ~5-7mins
-3. instant search results.
-4. Manual testing accuracy shows promising results.
-
-TODO : 
-1. bundelling
-2. optimisations
-3. segregations and more commands integrations
+```bash
+igrep --help
+```
