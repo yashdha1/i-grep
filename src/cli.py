@@ -35,7 +35,7 @@ def main() -> None:
         return
 
     if args.query_or_cmd == "setup":
-        from setup_cmd import setup
+        from src.setup_cmd import setup
         setup()
         return
 

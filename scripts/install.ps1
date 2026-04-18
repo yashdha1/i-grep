@@ -186,7 +186,7 @@ $wrapperPath = Join-Path $installDir "igrep.bat"
 $wrapperContent = @(
     "@echo off",
     "set SCRIPT_DIR=%~dp0",
-    "cd /d \"%SCRIPT_DIR%\"",
+    "cd /d `"%SCRIPT_DIR%`"",
     "call uv run python main.py %*"
 )
 Set-Content -Path $wrapperPath -Value $wrapperContent -Encoding ASCII
@@ -213,9 +213,9 @@ Write-Host "  IMPORTANT: Open a NEW terminal window before running igrep." -Fore
 Write-Host "  (PATH changes apply to new sessions only.)" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Quick start:" -ForegroundColor Cyan
-Write-Host '  igrep --track "C:\path\to\your\images"'
+Write-Host "  igrep --track `"C:\path\to\your\images`""
 Write-Host "  igrep sync"
-Write-Host '  igrep "search term"'
+Write-Host "  igrep `"search term`""
 Write-Host ""
 Read-Host "Press Enter to exit"
 
