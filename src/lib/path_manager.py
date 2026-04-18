@@ -1,9 +1,11 @@
 from pathlib import Path
 
+from src.lib.dirs import data_dir
+
 
 def get_paths_file() -> Path:
-    """Get the absolute path to paths.txt (project root)."""
-    return Path(__file__).resolve().parent.parent.parent / "paths.txt"
+    """Get the absolute path to paths.txt (user data dir)."""
+    return data_dir() / "paths.txt"
 
 
 def add_path(folder_path: str) -> None:

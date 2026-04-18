@@ -169,22 +169,22 @@ install_uv() {
     fi
 }
 
-# ── 4. Sync Python dependencies ───────────────────────────────────────────────
-sync_deps() {
-    step "Syncing Python dependencies with uv"
+# ── 4. Install igrep package ─────────────────────────────────────────────────
+install_igrep() {
+    step "Installing igrep and dependencies"
 
     if [[ ! -f pyproject.toml ]]; then
         error "pyproject.toml not found. Ensure you are running from the i-grep repo root."
     fi
 
-    uv sync
-    success "Dependencies synced"
+    uv pip install -e .
+    success "igrep installed"
 }
 
 # ── 5. Run igrep setup (model + db) ──────────────────────────────────────────
 run_igrep_setup() {
-    step "Running igrep setup (embedding model + database)"
-    uv run main.py setup
+    step "Running igrep setup (ONNX model ~90 MB + database)"
+    igrep setup
     success "igrep setup complete"
 }
 
@@ -226,7 +226,7 @@ main() {
     install_tesseract
     install_tessdata_fast
     install_uv
-    sync_deps
+    install_igrep
     run_igrep_setup
     print_summary
 }

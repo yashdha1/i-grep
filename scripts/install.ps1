@@ -98,28 +98,21 @@ Write-Host ""
 # ── Step 3: Python dependencies ──────────────────────────────────────────────
 Write-Host "--- Step 3/4: Python dependencies ---" -ForegroundColor Yellow
 Push-Location $installDir
-uv sync
+uv pip install -e .
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[!] Failed to install dependencies" -ForegroundColor Red
+    Write-Host "[!] Failed to install igrep" -ForegroundColor Red
     Pop-Location; Read-Host "Press Enter to exit"; exit 1
 }
-Write-Host "[✓] Dependencies installed" -ForegroundColor Green
+Write-Host "[✓] igrep installed" -ForegroundColor Green
 Pop-Location
 Write-Host ""
 
 # ── Step 4: igrep command & DB setup ─────────────────────────────────────────
 Write-Host "--- Step 4/4: igrep command & database setup ---" -ForegroundColor Yellow
 
-$wrapperPath = Join-Path $installDir "igrep.bat"
-$batchContent = "@echo off`r`ncd /d `"$installDir`"`r`ncall uv run python main.py %*`r`n"
-[System.IO.File]::WriteAllText($wrapperPath, $batchContent, [System.Text.Encoding]::ASCII)
-Write-Host "[✓] Wrapper created: $wrapperPath" -ForegroundColor Green
-
-Add-ToUserPath $installDir
-
-Write-Host "[*] Running igrep setup (downloads ~90-100 MB embedding model)..." -ForegroundColor Yellow
+Write-Host "[*] Running igrep setup (downloads ~90 MB ONNX model)..." -ForegroundColor Yellow
 Push-Location $installDir
-uv run python main.py setup
+uv run igrep setup
 Pop-Location
 
 # ── Done ──────────────────────────────────────────────────────────────────────
