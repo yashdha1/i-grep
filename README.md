@@ -2,7 +2,7 @@
 
 Pattern and semantic search for image and PDF collections.
 
-## One-command install (Windows)
+## One-command install
 
 From the repository root, run:
 
@@ -29,13 +29,13 @@ igrep --track "C:\path\to\images"
 igrep sync
 
 # Pattern search
-igrep "invoice"
-igrep -i "invoice"
-igrep -c "invoice"
+igrep <pattern> n 
+igrep -i <pattern> n
+igrep -c <pattern> n
 
 # Semantic search
-igrep -s "financial report summary"
-igrep -s "financial report summary" 10
+igrep -s <sentence> n 
+igrep -s <sentence> n
 ```
 
 ## CLI help
